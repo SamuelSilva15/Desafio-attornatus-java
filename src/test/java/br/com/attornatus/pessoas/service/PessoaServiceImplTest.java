@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,7 +43,19 @@ class PessoaServiceTest {
         assertEquals(pessoa, pessoaSalva);
     }
 
+    @Test
+    public void testFindAll() {
+        List<Pessoa> pessoas = Arrays.asList(criaMockPessoa(), criaMockPessoa());
+        when(pessoaRepository.findAll()).thenReturn(pessoas);
+
+        List<Pessoa> pessoasEncontradas = pessoaService.findAll();
+
+        assertEquals(pessoas, pessoasEncontradas);
+    }
+
     
+
+
     private Pessoa criaMockPessoa() {
         Pessoa pessoa = new Pessoa();
         pessoa.setCodigo(1L);

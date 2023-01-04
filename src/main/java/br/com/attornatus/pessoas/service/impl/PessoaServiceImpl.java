@@ -5,6 +5,8 @@ import br.com.attornatus.pessoas.repository.PessoaRepository;
 import br.com.attornatus.pessoas.service.PessoaService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 
 @RequiredArgsConstructor
 public class PessoaServiceImpl implements PessoaService {
@@ -14,5 +16,10 @@ public class PessoaServiceImpl implements PessoaService {
     @Override
     public Pessoa save(Pessoa pessoa) {
         return pessoaRepository.save(pessoa);
+    }
+
+    @Override
+    public List<Pessoa> findAll() {
+        return pessoaRepository.findAll();
     }
 }
