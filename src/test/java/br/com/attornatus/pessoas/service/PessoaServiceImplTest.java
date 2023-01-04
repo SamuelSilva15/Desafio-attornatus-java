@@ -1,26 +1,36 @@
 package br.com.attornatus.pessoas.service;
 
 
+import br.com.attornatus.pessoas.exception.PessoaNotFoundException;
 import br.com.attornatus.pessoas.model.Endereco;
 import br.com.attornatus.pessoas.model.Pessoa;
 import br.com.attornatus.pessoas.repository.PessoaRepository;
 import br.com.attornatus.pessoas.service.impl.PessoaServiceImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.BDDAssumptions.given;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PessoaServiceTest {
+
+    private static final Long PESSOA_1 = 1L;
 
     @Mock
     private PessoaRepository pessoaRepository;
@@ -53,7 +63,31 @@ class PessoaServiceTest {
         assertEquals(pessoas, pessoasEncontradas);
     }
 
-    
+    @Test
+    void testThrowPessoaNotFoundException() {
+        Mockito.when(pessoaRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(PessoaNotFoundException.class, () -> pessoaService.findById(4L), "Pessoa não encontrada: 4L");
+    }
+
+    @Test
+    public void testFindById() throws PessoaNotFoundException {
+        Pessoa pessoa = criaMockPessoa();
+
+        Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
+
+        Pessoa pessoa1 = pessoaService.findById(1L);
+
+        assertNotNull(pessoa1);
+        assertEquals(1L, pessoa1.getCodigo());
+        assertEquals("Maria da Silva", pessoa1.getNome());
+        assertEquals(LocalDate.of(2000, 1, 1), pessoa1.getDataNascimento());
+        assertEquals(1, pessoa1.getEnderecos().get(0).getCodigo());
+        assertEquals("Rua Soldado Floriano Peixoto", pessoa1.getEnderecos().get(0).getLogradouro());
+        assertEquals(2, pessoa1.getEnderecos().get(1).getCodigo());
+        assertEquals("Avenida Horiano Pedrosa", pessoa1.getEnderecos().get(1).getLogradouro());
+    }
+
 
 
     private Pessoa criaMockPessoa() {
@@ -64,14 +98,14 @@ class PessoaServiceTest {
 
         Endereco endereco1 = new Endereco();
         endereco1.setCodigo(1L);
-        endereco1.setLogradouro("Rua soldado floriano peixoto");
+        endereco1.setLogradouro("Rua Soldado Floriano Peixoto");
         endereco1.setCep(1234L);
         endereco1.setNumero(123L);
         endereco1.setCidade("Caçapava");
 
         Endereco endereco2 = new Endereco();
         endereco2.setCodigo(2L);
-        endereco2.setLogradouro("Avenida horiano pedrosa");
+        endereco2.setLogradouro("Avenida Horiano Pedrosa");
         endereco2.setCep(5678L);
         endereco2.setNumero(869L);
         endereco2.setCidade("Taubaté");

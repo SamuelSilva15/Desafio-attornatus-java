@@ -1,5 +1,6 @@
 package br.com.attornatus.pessoas.service.impl;
 
+import br.com.attornatus.pessoas.exception.PessoaNotFoundException;
 import br.com.attornatus.pessoas.model.Pessoa;
 import br.com.attornatus.pessoas.repository.PessoaRepository;
 import br.com.attornatus.pessoas.service.PessoaService;
@@ -21,5 +22,11 @@ public class PessoaServiceImpl implements PessoaService {
     @Override
     public List<Pessoa> findAll() {
         return pessoaRepository.findAll();
+    }
+
+    @Override
+    public Pessoa findById(Long codigo) throws PessoaNotFoundException {
+        return pessoaRepository.findById(codigo)
+                .orElseThrow(() -> new PessoaNotFoundException(codigo));
     }
 }
