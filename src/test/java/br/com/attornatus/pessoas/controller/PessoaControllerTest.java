@@ -1,28 +1,25 @@
 package br.com.attornatus.pessoas.controller;
 
-import br.com.attornatus.pessoas.model.Endereco;
 import br.com.attornatus.pessoas.model.Pessoa;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -33,49 +30,62 @@ class PessoaControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
     @Test
     void testeSalvaPessoaAndProcuraPorCodigo() throws Exception {
-        mockMvc
+        MockHttpServletResponse response = mockMvc
                 .perform(MockMvcRequestBuilders
                         .post(new URI("/api/v1/pessoas"))
-                        .content(getJson())
+                        .content(getPessoa())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers
-                        .status()
-                        .is(200));
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse();
 
-        /* --> TesteFindById <-- */
+        response.setCharacterEncoding("UTF-8");
+        Pessoa pessoa = objectMapper.readValue(response.getContentAsString(), Pessoa.class);
+
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .get(new URI("/api/v1/pessoas/1")))
+                        .get(new URI("/api/v1/pessoas/" + pessoa.getCodigo())))
                 .andExpect(MockMvcResultMatchers
                         .status()
-                        .is(200))
+                        .isOk())
                 .andExpect(MockMvcResultMatchers.content()
-                        .json(getJson()));
+                        .json(response.getContentAsString()));
     }
 
     @Test
     void testeListaTodasAsPessoas() throws Exception {
         mockMvc
                 .perform(MockMvcRequestBuilders
+                        .post(new URI("/api/v1/pessoas"))
+                        .content(getPessoa())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        mockMvc
+                .perform(MockMvcRequestBuilders
                         .get(new URI("/api/v1/pessoas"))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers
                         .status()
-                        .is(200));
+                        .isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
     }
 
     @Test
     void testeAtualizacaoDeDadosDeUmaPessoa() throws Exception {
-        mockMvc
+        MockHttpServletResponse response = mockMvc
                 .perform(MockMvcRequestBuilders
                         .post(new URI("/api/v1/pessoas"))
-                        .content(getJson())
+                        .content(getPessoa())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers
-                        .status()
-                        .is(200));
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse();
+
+        response.setCharacterEncoding("UTF-8");
+        Pessoa pessoa = objectMapper.readValue(response.getContentAsString(), Pessoa.class);
 
 
         String json = "{\n" +
@@ -93,53 +103,78 @@ class PessoaControllerTest {
 
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .put(new URI("/api/v1/pessoas/1"))
+                        .put(new URI("/api/v1/pessoas/" + pessoa.getCodigo()))
                         .content(json)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().is(200));
+                .andExpect(MockMvcResultMatchers.status().isOk());
 
 
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .get(new URI("/api/v1/pessoas/1")))
+                        .get(new URI("/api/v1/pessoas/" + pessoa.getCodigo())))
                 .andExpect(MockMvcResultMatchers
                         .status()
-                        .is(200))
+                        .isOk())
                 .andExpect(MockMvcResultMatchers.content()
                         .json(json));
     }
 
     @Test
     void testesSalvarNovoEnderecoAndListarEnderecos() throws Exception {
-        mockMvc
+        MockHttpServletResponse response = mockMvc
                 .perform(MockMvcRequestBuilders
                         .post(new URI("/api/v1/pessoas"))
-                        .content(getJson())
+                        .content(getPessoa())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers
-                        .status()
-                        .is(200));
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse();
+
+        response.setCharacterEncoding("UTF-8");
+        Pessoa pessoa = objectMapper.readValue(response.getContentAsString(), Pessoa.class);
 
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .post(new URI("/api/v1/pessoas/1/enderecos"))
+                        .post(new URI("/api/v1/pessoas/" + pessoa.getCodigo() +"/enderecos"))
                         .content(getEnderecos())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers
                         .status()
-                        .is(200));
+                        .isOk());
 
-        /* --> TestesListaDeEnderecos <-- */
         mockMvc
                 .perform(MockMvcRequestBuilders
-                        .get(new URI("/api/v1/pessoas/1/enderecos")))
+                        .get(new URI("/api/v1/pessoas/" + pessoa.getCodigo() + "/enderecos")))
                 .andExpect(MockMvcResultMatchers
                         .status()
-                        .is(200))
+                        .isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(4)));
     }
 
-    private static String getJson() {
+    @Test
+    void testeEnderecoPrincipal() throws Exception {
+        MockHttpServletResponse response = mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(new URI("/api/v1/pessoas"))
+                        .content(getPessoa())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn().getResponse();
+
+        response.setCharacterEncoding("UTF-8");
+        Pessoa pessoa = objectMapper.readValue(response.getContentAsString(), Pessoa.class);
+
+        mockMvc
+                .perform(MockMvcRequestBuilders
+                        .patch(new URI("/api/v1/pessoas/" + pessoa.getCodigo() + "/enderecos/" + pessoa.getEnderecos().get(0).getCodigo() + "/primary-address"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.primaryAddress", is(true)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.codigo", is(pessoa.getEnderecos().get(0).getCodigo().intValue())));
+    }
+
+    private static String getPessoa() {
         return "{\n" +
                 "    \"nome\": \"Samuel Araújo da Silva\",\n" +
                 "    \"dataNascimento\": \"12/01/2001\", \n" +

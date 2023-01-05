@@ -48,4 +48,9 @@ public class PessoaController {
     public List<Endereco> getEnderecos(@PathVariable Long codigo) throws PessoaNotFoundException {
         return pessoaService.getEnderecos(codigo);
     }
+
+    @PatchMapping("/{codigoPessoa}/enderecos/{codigoEndereco}/primary-address")
+    public Endereco primaryAddress(@PathVariable Long codigoPessoa, @PathVariable Long codigoEndereco) throws PessoaNotFoundException, EnderecoNotFoundException {
+        return pessoaService.primaryAddress(codigoPessoa, codigoEndereco);
+    }
 }
