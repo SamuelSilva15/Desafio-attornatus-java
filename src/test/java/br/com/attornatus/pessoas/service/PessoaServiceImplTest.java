@@ -1,6 +1,7 @@
 package br.com.attornatus.pessoas.service;
 
 
+import br.com.attornatus.pessoas.exception.EnderecoNotFoundException;
 import br.com.attornatus.pessoas.exception.PessoaNotFoundException;
 import br.com.attornatus.pessoas.model.Endereco;
 import br.com.attornatus.pessoas.model.Pessoa;
@@ -10,21 +11,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.BDDAssumptions.given;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +43,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    public void testSalvaPessoa() {
+    void testSalvaPessoa() {
         Pessoa pessoa = criaMockPessoa();
         when(pessoaRepository.save(pessoa)).thenReturn(pessoa);
 
@@ -54,7 +53,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         List<Pessoa> pessoas = Arrays.asList(criaMockPessoa(), criaMockPessoa());
         when(pessoaRepository.findAll()).thenReturn(pessoas);
 
@@ -71,7 +70,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    public void testFindById() throws PessoaNotFoundException {
+    void testFindById() throws PessoaNotFoundException {
         Pessoa pessoa = criaMockPessoa();
 
         Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
@@ -88,6 +87,51 @@ class PessoaServiceTest {
         assertEquals("Avenida Horiano Pedrosa", pessoa1.getEnderecos().get(1).getLogradouro());
     }
 
+    @Test
+    void testUpdate() throws PessoaNotFoundException {
+        Pessoa pessoa = criaMockPessoa();
+        when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
+        when(pessoaRepository.save(pessoa)).thenReturn(pessoa);
+
+        Pessoa pessoaAtualizada = pessoaService.update(pessoa.getCodigo(), pessoa);
+        assertEquals(pessoa, pessoaAtualizada);
+    }
+
+    @Test
+    void testSalvaEnderecos() throws PessoaNotFoundException {
+        Pessoa pessoa = criaMockPessoa();
+
+        Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
+
+        List<Endereco> enderecosPessoa = pessoaService.saveEnderecos(pessoa.getCodigo(), enderecos());
+
+        assertEquals(pessoa.getEnderecos(), enderecosPessoa);
+    }
+
+    @Test
+    void testeListaEnderecos() throws PessoaNotFoundException {
+        Pessoa pessoa = criaMockPessoa();
+
+        Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
+
+        List<Endereco> enderecos = pessoaService.getEnderecos(1L);
+
+        assertEquals(pessoa.getEnderecos(), enderecos);
+    }
+
+    @Test
+    void testPrimaryAddress() throws PessoaNotFoundException, EnderecoNotFoundException {
+        Pessoa pessoa = criaMockPessoa();
+
+        Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
+
+        Endereco endereco = pessoaService.primaryAddress(1L, 1L);
+
+        assertEquals(Boolean.TRUE, endereco.isPrimaryAddress());
+
+
+    }
+
 
 
     private Pessoa criaMockPessoa() {
@@ -96,6 +140,12 @@ class PessoaServiceTest {
         pessoa.setNome("Maria da Silva");
         pessoa.setDataNascimento(LocalDate.of(2000, 1, 1));
 
+        pessoa.setEnderecos(enderecos());
+
+        return pessoa;
+    }
+
+    private List<Endereco> enderecos() {
         Endereco endereco1 = new Endereco();
         endereco1.setCodigo(1L);
         endereco1.setLogradouro("Rua Soldado Floriano Peixoto");
@@ -110,8 +160,6 @@ class PessoaServiceTest {
         endereco2.setNumero(869L);
         endereco2.setCidade("Taubaté");
 
-        pessoa.setEnderecos(List.of(endereco1, endereco2));
-
-        return pessoa;
+        return new ArrayList<>(List.of(endereco1, endereco2));
     }
 }
