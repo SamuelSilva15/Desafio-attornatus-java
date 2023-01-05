@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -19,6 +20,9 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -105,6 +109,36 @@ class PessoaControllerTest {
                         .json(json));
     }
 
+    @Test
+    void testesSalvarNovoEnderecoAndListarEnderecos() throws Exception {
+        mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(new URI("/api/v1/pessoas"))
+                        .content(getJson())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .is(200));
+
+        mockMvc
+                .perform(MockMvcRequestBuilders
+                        .post(new URI("/api/v1/pessoas/1/enderecos"))
+                        .content(getEnderecos())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .is(200));
+
+        /* --> TestesListaDeEnderecos <-- */
+        mockMvc
+                .perform(MockMvcRequestBuilders
+                        .get(new URI("/api/v1/pessoas/1/enderecos")))
+                .andExpect(MockMvcResultMatchers
+                        .status()
+                        .is(200))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(4)));
+    }
+
     private static String getJson() {
         return "{\n" +
                 "    \"nome\": \"Samuel Araújo da Silva\",\n" +
@@ -115,9 +149,11 @@ class PessoaControllerTest {
                 "        \"numero\": 275,\n" +
                 "        \"cidade\": \"Caçapava\"\n" +
                 "    },\n" +
+
+
                 "    {\n" +
                 "        \"logradouro\": \"Rua Soldado Machado de Assis\",\n" +
-                "        \"cep\": 563535,\n" +
+                "        \"cep\": 35252523,\n" +
                 "        \"numero\": 665,\n" +
                 "        \"cidade\": \"Taubaté\"\n" +
                 "    }]\n" +
@@ -125,5 +161,51 @@ class PessoaControllerTest {
                 "}";
     }
 
+    private static String getEnderecos() {
+        return "[{\n" +
+                "        \"logradouro\": \"Wagner Moura Castanho\",\n" +
+                "        \"cep\": 7882828,\n" +
+                "        \"numero\": 572,\n" +
+                "        \"cidade\": \"São José dos Campos\",\n" +
+                "        \"primaryAddress\": true\n" +
+                "    },\n" +
 
+
+                "    {\n" +
+                "        \"logradouro\": \"Soldado floriano peixoto\",\n" +
+                "        \"cep\": \"35252523\",\n" +
+                "        \"numero\": 778,\n" +
+                "        \"cidade\": \"Taubaté\"\n" +
+                "    }\n" +
+                "]   \n";
+    }
+
+    private static String todosEnderecos() {
+        return "[{\n" +
+                "        \"logradouro\": \"Wagner Moura Castanho\",\n" +
+                "        \"cep\": 7882828,\n" +
+                "        \"numero\": 572,\n" +
+                "        \"cidade\": \"São José dos Campos\",\n" +
+                "        \"primaryAddress\": true\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"logradouro\": \"Soldado floriano peixoto\",\n" +
+                "        \"cep\": \"35252523\",\n" +
+                "        \"numero\": 778,\n" +
+                "        \"cidade\": \"Taubaté\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"logradouro\": \"Avenidade José Rufino César Guimarães\",\n" +
+                "        \"cep\": 12283260,\n" +
+                "        \"numero\": 275,\n" +
+                "        \"cidade\": \"Caçapava\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "        \"logradouro\": \"Rua soldado machado de assis\",\n" +
+                "        \"cep\": 563535,\n" +
+                "        \"numero\": 665,\n" +
+                "        \"cidade\": \"Taubaté\"\n" +
+                "    }\n" +
+                "] ";
+    }
 }

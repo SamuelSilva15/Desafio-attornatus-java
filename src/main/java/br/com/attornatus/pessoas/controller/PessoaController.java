@@ -38,4 +38,14 @@ public class PessoaController {
     public Pessoa update(@PathVariable Long codigo, @RequestBody @Valid Pessoa pessoa) throws PessoaNotFoundException {
         return pessoaService.update(codigo, pessoa);
     }
+
+    @PostMapping("/{codigo}/enderecos")
+    public List<Endereco> salvaEnderecos(@PathVariable Long codigo, @RequestBody @Valid List<Endereco> enderecos) throws PessoaNotFoundException {
+        return pessoaService.saveEnderecos(codigo, enderecos);
+    }
+
+    @GetMapping("/{codigo}/enderecos")
+    public List<Endereco> getEnderecos(@PathVariable Long codigo) throws PessoaNotFoundException {
+        return pessoaService.getEnderecos(codigo);
+    }
 }
