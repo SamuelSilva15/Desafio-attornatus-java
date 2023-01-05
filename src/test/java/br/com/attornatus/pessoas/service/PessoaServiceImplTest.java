@@ -23,13 +23,10 @@ import java.util.Optional;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PessoaServiceTest {
-
-    private static final Long PESSOA_1 = 1L;
 
     @Mock
     private PessoaRepository pessoaRepository;
@@ -43,7 +40,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void testSalvaPessoa() {
+    void testeSalvaPessoa() {
         Pessoa pessoa = criaMockPessoa();
         when(pessoaRepository.save(pessoa)).thenReturn(pessoa);
 
@@ -53,7 +50,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void testFindAll() {
+    void testeFindAll() {
         List<Pessoa> pessoas = Arrays.asList(criaMockPessoa(), criaMockPessoa());
         when(pessoaRepository.findAll()).thenReturn(pessoas);
 
@@ -63,14 +60,14 @@ class PessoaServiceTest {
     }
 
     @Test
-    void testThrowPessoaNotFoundException() {
+    void testeThrowPessoaNotFoundException() {
         Mockito.when(pessoaRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(PessoaNotFoundException.class, () -> pessoaService.findById(4L), "Pessoa não encontrada: 4L");
     }
 
     @Test
-    void testFindById() throws PessoaNotFoundException {
+    void testeFindById() throws PessoaNotFoundException {
         Pessoa pessoa = criaMockPessoa();
 
         Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
@@ -88,7 +85,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void testUpdate() throws PessoaNotFoundException {
+    void testeUpdate() throws PessoaNotFoundException {
         Pessoa pessoa = criaMockPessoa();
         when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
         when(pessoaRepository.save(pessoa)).thenReturn(pessoa);
@@ -98,7 +95,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void testSalvaEnderecos() throws PessoaNotFoundException {
+    void testeSalvaEnderecos() throws PessoaNotFoundException {
         Pessoa pessoa = criaMockPessoa();
 
         Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));
@@ -120,7 +117,7 @@ class PessoaServiceTest {
     }
 
     @Test
-    void testPrimaryAddress() throws PessoaNotFoundException, EnderecoNotFoundException {
+    void testePrimaryAddress() throws PessoaNotFoundException, EnderecoNotFoundException {
         Pessoa pessoa = criaMockPessoa();
 
         Mockito.when(pessoaRepository.findById(pessoa.getCodigo())).thenReturn(Optional.of(pessoa));

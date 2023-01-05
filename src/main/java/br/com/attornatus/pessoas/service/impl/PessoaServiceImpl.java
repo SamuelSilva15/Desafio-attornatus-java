@@ -7,10 +7,13 @@ import br.com.attornatus.pessoas.model.Pessoa;
 import br.com.attornatus.pessoas.repository.PessoaRepository;
 import br.com.attornatus.pessoas.service.PessoaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
+@Service
 @RequiredArgsConstructor
 public class PessoaServiceImpl implements PessoaService {
 
