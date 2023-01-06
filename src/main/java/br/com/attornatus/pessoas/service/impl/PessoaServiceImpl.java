@@ -77,6 +77,7 @@ public class PessoaServiceImpl implements PessoaService {
                 .findFirst()
                 .orElseThrow(() -> new EnderecoNotFoundException(codigoEndereco));
 
+        pessoa.getEnderecos().forEach(end -> end.setPrimaryAddress(Boolean.FALSE));
         endereco.setPrimaryAddress(Boolean.TRUE);
         pessoaRepository.save(pessoa);
 
