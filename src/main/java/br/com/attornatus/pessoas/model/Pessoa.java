@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@EqualsAndHashCode(exclude = "nameAttributeInThisClassWithOneToMany")
 @Table(name = "pessoa")
 public class Pessoa {
 
@@ -30,7 +29,7 @@ public class Pessoa {
     private LocalDate dataNascimento;
 
     @JustOnePrimary(message = "Somente um endereço pode ser escolhido como o principal")
-    @NotEmpty(message = "Ao menos um endereço deve ser salvo")
+    @NotEmpty(message = "Ao menos um endereço deve ser informado")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "pessoa_codigo")
     private List<Endereco> enderecos;

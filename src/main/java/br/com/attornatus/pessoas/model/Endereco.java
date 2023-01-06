@@ -20,9 +20,7 @@ public class Endereco implements Comparable<Endereco> {
     private String logradouro;
     private Long cep;
     private Long numero;
-
     private String cidade;
-
     private boolean primaryAddress;
 
     @Override
