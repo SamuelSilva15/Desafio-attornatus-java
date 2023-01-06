@@ -6,10 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.swing.text.EditorKit;
+import java.util.Comparator;
 
 @Entity
 @Data
-public class Endereco {
+public class Endereco implements Comparable<Endereco> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +24,9 @@ public class Endereco {
     private String cidade;
 
     private boolean primaryAddress;
+
+    @Override
+    public int compareTo(Endereco o) {
+        return Boolean.compare(o.isPrimaryAddress(), this.isPrimaryAddress());
+    }
 }
