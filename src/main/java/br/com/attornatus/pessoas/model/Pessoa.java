@@ -34,6 +34,12 @@ public class Pessoa {
     @JoinColumn(name = "pessoa_codigo")
     private List<Endereco> enderecos;
 
+    public Pessoa(String nome, LocalDate dataNascimento, Endereco endereco) {
+        this.nome = nome;
+        this.dataNascimento = dataNascimento;
+        this.enderecos = Collections.singletonList(endereco);
+    }
+
     public List<Endereco> getEnderecos() {
         Collections.sort(enderecos);
         return enderecos;

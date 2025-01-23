@@ -9,15 +9,10 @@ import java.util.List;
 
 public interface PessoaService {
     Pessoa save(Pessoa pessoa);
-
     List<Pessoa> findAll();
-
     Pessoa findById(Long codigo) throws PessoaNotFoundException;
-
     Pessoa update(Long codigo, Pessoa pessoa) throws PessoaNotFoundException;
-
-    public List<Endereco> saveEnderecos(Long codigo, List<Endereco> endereco) throws PessoaNotFoundException;
-    public List<Endereco> getEnderecos(Long codigo) throws PessoaNotFoundException;
-
-    public Endereco primaryAddress(Long codigoPessoa, Long codigoEndereco) throws PessoaNotFoundException, EnderecoNotFoundException;
+    List<Endereco> saveEnderecos(Long codigo, List<Endereco> endereco) throws PessoaNotFoundException;
+    List<Endereco> getEnderecos(Long codigo) throws PessoaNotFoundException;
+    Endereco primaryAddress(Long codigoPessoa, Long codigoEndereco) throws PessoaNotFoundException, EnderecoNotFoundException;
 }

@@ -9,7 +9,6 @@ import br.com.attornatus.pessoas.service.PessoaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -73,14 +72,12 @@ public class PessoaServiceImpl implements PessoaService {
     public Endereco primaryAddress(Long codigoPessoa, Long codigoEndereco) throws PessoaNotFoundException, EnderecoNotFoundException {
         Pessoa pessoa = pessoaRepository.findById(codigoPessoa).orElseThrow(() -> new PessoaNotFoundException(codigoPessoa));
         Endereco endereco = pessoa.getEnderecos().stream()
-                .filter(end -> end.getCodigo() == codigoEndereco)
+                .filter(end -> end.getCodigo().equals(codigoEndereco))
                 .findFirst()
                 .orElseThrow(() -> new EnderecoNotFoundException(codigoEndereco));
 
-        pessoa.getEnderecos().forEach(end -> end.setPrimaryAddress(Boolean.FALSE));
-        endereco.setPrimaryAddress(Boolean.TRUE);
+        endereco.setPrimaryAddress(!endereco.isPrimaryAddress());
         pessoaRepository.save(pessoa);
-
         return endereco;
     }
 }
